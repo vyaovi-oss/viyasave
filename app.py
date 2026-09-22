@@ -7,6 +7,7 @@ import re
 import shutil
 import tempfile
 import time
+import traceback
 from collections import defaultdict, deque
 
 from flask import Flask, jsonify, render_template, request, send_file, after_this_request
@@ -80,6 +81,8 @@ def infos_video():
         with yt_dlp.YoutubeDL(options_base()) as ydl:
             info = ydl.extract_info(url, download=False)
     except Exception:
+        print("ERREUR /api/info :", url, flush=True)
+        traceback.print_exc()
         return jsonify(erreur="Impossible de récupérer cette vidéo. Elle est peut-être privée ou supprimée."), 422
 
     return jsonify(
@@ -116,6 +119,8 @@ def telecharger():
             info = ydl.extract_info(url, download=True)
             chemin = ydl.prepare_filename(info)
     except Exception:
+        print("ERREUR /api/download :", url, flush=True)
+        traceback.print_exc()
         return "Échec du téléchargement. Réessayez plus tard.", 422
 
     if not os.path.exists(chemin):
