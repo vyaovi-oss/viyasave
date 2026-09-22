@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ViyaSave – Télécharger des vidéos TikTok sans filigrane</title>
+  <meta name="description" content="Téléchargez gratuitement vos vidéos TikTok en MP4, sans filigrane, en haute qualité.">
+  <style>
+    :root {
+      --bg: #0f0f14; --carte: #1a1a22; --texte: #f2f2f5; --doux: #9a9aa8;
+      --accent: #25f4ee; --accent2: #fe2c55; --bord: #2a2a35;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+           background: var(--bg); color: var(--texte); min-height: 100vh;
+           display: flex; flex-direction: column; }
+    header { padding: 20px 16px; text-align: center; }
+    .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
+    .logo span { color: var(--accent); }
+    main { flex: 1; width: 100%; max-width: 640px; margin: 0 auto; padding: 24px 16px; }
+    h1 { font-size: clamp(1.6rem, 5vw, 2.4rem); text-align: center; line-height: 1.2; margin-bottom: 10px; }
+    .sous-titre { text-align: center; color: var(--doux); margin-bottom: 28px; }
+    form { display: flex; gap: 8px; background: var(--carte); padding: 8px;
+           border-radius: 14px; border: 1px solid var(--bord); }
+    input { flex: 1; min-width: 0; background: transparent; border: none; color: var(--texte);
+            font-size: 1rem; padding: 12px; outline: none; }
+    button { border: none; border-radius: 10px; padding: 12px 20px; font-weight: 700;
+             font-size: 1rem; cursor: pointer; color: #000;
+             background: linear-gradient(135deg, var(--accent), #7ff9f5); }
+    button:disabled { opacity: .6; cursor: wait; }
+    .coller { background: var(--bord); color: var(--texte); }
+    .message { margin-top: 16px; text-align: center; min-height: 1.4em; }
+    .erreur { color: var(--accent2); }
+    .resultat { display: none; margin-top: 20px; background: var(--carte); border: 1px solid var(--bord);
+                border-radius: 14px; padding: 16px; gap: 16px; align-items: center; }
+    .resultat img { width: 90px; height: 120px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+    .resultat .infos { flex: 1; min-width: 0; }
+    .resultat .titre { font-weight: 600; overflow: hidden; display: -webkit-box;
+                       -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+    .resultat .auteur { color: var(--doux); margin: 6px 0 12px; }
+    .btn-dl { display: inline-block; text-decoration: none; background: var(--accent2); color: #fff;
+              padding: 10px 18px; border-radius: 10px; font-weight: 700; }
+    .etapes { margin-top: 48px; display: grid; gap: 12px; }
+    .etape { background: var(--carte); border: 1px solid var(--bord); border-radius: 12px; padding: 14px 16px; }
+    .etape b { color: var(--accent); margin-right: 6px; }
+    .avertissement { margin-top: 32px; font-size: .85rem; color: var(--doux); text-align: center; line-height: 1.5; }
+    footer { text-align: center; padding: 20px 16px; color: var(--doux); font-size: .8rem; }
+    footer a { color: var(--doux); }
+    @media (max-width: 480px) {
+      form { flex-wrap: wrap; }
+      input { flex-basis: 100%; }
+      form button { flex: 1; }
+      .resultat { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <header><div class="logo">Viya<span>Save</span></div></header>
+
+  <main>
+    <h1>Téléchargez vos vidéos TikTok sans filigrane</h1>
+    <p class="sous-titre">Gratuit, rapide, en MP4 haute qualité. Aucune inscription.</p>
+
+    <form id="formulaire">
+      <input id="lien" type="url" placeholder="Collez le lien de la vidéo TikTok ici" required autocomplete="off">
+      <button type="button" class="coller" id="btn-coller">Coller</button>
+      <button type="submit" id="btn-chercher">Télécharger</button>
+    </form>
+
+    <p class="message" id="message"></p>
+
+    <div class="resultat" id="resultat">
+      <img id="miniature" alt="Miniature de la vidéo">
+      <div class="infos">
+        <div class="titre" id="titre"></div>
+        <div class="auteur" id="auteur"></div>
+        <a class="btn-dl" id="btn-dl" href="#">Télécharger le MP4</a>
+      </div>
+    </div>
+
+    <section class="etapes">
+      <div class="etape"><b>1.</b> Ouvrez TikTok et appuyez sur « Partager » puis « Copier le lien ».</div>
+      <div class="etape"><b>2.</b> Collez le lien dans le champ ci-dessus.</div>
+      <div class="etape"><b>3.</b> Appuyez sur « Télécharger » et enregistrez la vidéo.</div>
+    </section>
+
+    <p class="avertissement">
+      Téléchargez uniquement vos propres vidéos ou celles dont vous avez l'autorisation.
+      Respectez les droits des créateurs. ViyaSave n'est pas affilié à TikTok ni à ByteDance.
+    </p>
+  </main>
+
+  <footer>© ViyaSave · <a href="/conditions">Conditions d'utilisation</a></footer>
+
+  <script>
+    const form = document.getElementById("formulaire");
+    const lien = document.getElementById("lien");
+    const msg = document.getElementById("message");
+    const res = document.getElementById("resultat");
+    const btn = document.getElementById("btn-chercher");
+
+    document.getElementById("btn-coller").addEventListener("click", async () => {
+      try { lien.value = await navigator.clipboard.readText(); }
+      catch { msg.textContent = "Collez le lien manuellement (appui long dans le champ)."; }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const url = lien.value.trim();
+      res.style.display = "none";
+      msg.className = "message";
+      msg.textContent = "Recherche de la vidéo…";
+      btn.disabled = true;
+
+      try {
+        const r = await fetch("/api/info", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url })
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.erreur || "Erreur inconnue.");
+
+        document.getElementById("titre").textContent = data.titre;
+        document.getElementById("auteur").textContent = data.auteur ? "@" + data.auteur : "";
+        const img = document.getElementById("miniature");
+        if (data.miniature) { img.src = data.miniature; img.style.display = ""; }
+        else { img.style.display = "none"; }
+        document.getElementById("btn-dl").href = "/api/download?url=" + encodeURIComponent(url);
+        res.style.display = "flex";
+        msg.textContent = "";
+      } catch (err) {
+        msg.className = "message erreur";
+        msg.textContent = err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById("btn-dl").addEventListener("click", () => {
+      msg.className = "message";
+      msg.textContent = "Préparation du fichier… le téléchargement va démarrer.";
+      setTimeout(() => { msg.textContent = ""; }, 8000);
+    });
+  </script>
+</body>
+</html>
