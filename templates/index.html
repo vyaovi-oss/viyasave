@@ -43,6 +43,7 @@
     .etapes { margin-top: 48px; display: grid; gap: 12px; }
     .etape { background: var(--carte); border: 1px solid var(--bord); border-radius: 12px; padding: 14px 16px; }
     .etape b { color: var(--accent); margin-right: 6px; }
+    .pub { margin: 20px auto 0; text-align: center; max-width: 100%; overflow: hidden; }
     .avertissement { margin-top: 32px; font-size: .85rem; color: var(--doux); text-align: center; line-height: 1.5; }
     footer { text-align: center; padding: 20px 16px; color: var(--doux); font-size: .8rem; }
     footer a { color: var(--doux); }
@@ -53,6 +54,16 @@
       .resultat { flex-direction: column; text-align: center; }
     }
   </style>
+  {% if ga_id %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_id }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ ga_id }}');
+  </script>
+  {% endif %}
+  {{ ad_head|safe }}
 </head>
 <body>
   <header><div class="logo">Viya<span>Save</span></div></header>
@@ -67,6 +78,8 @@
       <button type="submit" id="btn-chercher">Télécharger</button>
     </form>
 
+    {% if ad_top %}<div class="pub">{{ ad_top|safe }}</div>{% endif %}
+
     <p class="message" id="message"></p>
 
     <div class="resultat" id="resultat">
@@ -77,6 +90,8 @@
         <a class="btn-dl" id="btn-dl" href="#">Télécharger le MP4</a>
       </div>
     </div>
+
+    {% if ad_bottom %}<div class="pub">{{ ad_bottom|safe }}</div>{% endif %}
 
     <section class="etapes">
       <div class="etape"><b>1.</b> Ouvrez TikTok et appuyez sur « Partager » puis « Copier le lien ».</div>
@@ -128,6 +143,7 @@
         else { img.style.display = "none"; }
         document.getElementById("btn-dl").href = "/api/download?url=" + encodeURIComponent(url);
         res.style.display = "flex";
+        if (window.gtag) gtag("event", "video_trouvee");
         msg.textContent = "";
       } catch (err) {
         msg.className = "message erreur";
@@ -138,6 +154,7 @@
     });
 
     document.getElementById("btn-dl").addEventListener("click", () => {
+      if (window.gtag) gtag("event", "telechargement");
       msg.className = "message";
       msg.textContent = "Préparation du fichier… le téléchargement va démarrer.";
       setTimeout(() => { msg.textContent = ""; }, 8000);

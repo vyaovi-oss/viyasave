@@ -15,6 +15,30 @@ import yt_dlp
 
 app = Flask(__name__)
 
+
+# --- Publicités et statistiques : tout se règle dans Render (Environment) ---
+# GA_ID      : identifiant Google Analytics (ex : G-XXXXXXXXXX)
+# AD_HEAD    : code publicitaire à placer dans <head> (optionnel)
+# AD_TOP     : bannière affichée sous le titre
+# AD_BOTTOM  : bannière affichée sous le résultat
+# ADS_TXT    : contenu du fichier ads.txt demandé par la régie
+@app.context_processor
+def reglages_pub():
+    return {
+        "ga_id": os.environ.get("GA_ID", "").strip(),
+        "ad_head": os.environ.get("AD_HEAD", ""),
+        "ad_top": os.environ.get("AD_TOP", ""),
+        "ad_bottom": os.environ.get("AD_BOTTOM", ""),
+    }
+
+
+@app.route("/ads.txt")
+def ads_txt():
+    contenu = os.environ.get("ADS_TXT", "").replace("\\n", "\n")
+    if not contenu:
+        return "", 404
+    return contenu, 200, {"Content-Type": "text/plain; charset=utf-8"}
+
 # Seuls les liens TikTok sont acceptés
 TIKTOK_REGEX = re.compile(
     r"^https?://(www\.|m\.|vm\.|vt\.)?tiktok\.com/[^\s]+$", re.IGNORECASE
