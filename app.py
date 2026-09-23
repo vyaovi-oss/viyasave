@@ -21,6 +21,7 @@ import yt_dlp
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 import db
+from i18n import textes
 
 app = Flask(__name__)
 # Render est derrière un proxy : on récupère le vrai https et le vrai domaine
@@ -109,7 +110,18 @@ def accueil():
         articles = db.lister(publies_seulement=True, limite=3)
     except Exception:
         articles = []
-    return render_template("index.html", derniers_articles=articles)
+    return render_template("index.html", derniers_articles=articles, t=textes("fr"))
+
+
+@app.route("/en")
+def accueil_en():
+    # Les articles du blog sont en français : on ne les affiche pas sur la version anglaise
+    return render_template("index.html", derniers_articles=[], t=textes("en"))
+
+
+@app.route("/en/terms")
+def conditions_en():
+    return render_template("conditions_en.html")
 
 
 @app.route("/conditions")
@@ -120,12 +132,14 @@ def conditions():
 @app.post("/api/info")
 def infos_video():
     """Renvoie le titre, l'auteur et la miniature avant le téléchargement."""
+    donnees = request.get_json(silent=True) or {}
+    t = textes(donnees.get("lang", "fr"))
     if trop_de_requetes(ip_client()):
-        return jsonify(erreur="Trop de demandes. Réessayez dans une minute."), 429
+        return jsonify(erreur=t["err_trop"]), 429
 
-    url = (request.get_json(silent=True) or {}).get("url", "").strip()
+    url = donnees.get("url", "").strip()
     if not lien_valide(url):
-        return jsonify(erreur="Lien invalide. Collez un lien TikTok (ex : https://www.tiktok.com/@nom/video/123...)."), 400
+        return jsonify(erreur=t["err_lien"]), 400
 
     try:
         with yt_dlp.YoutubeDL(options_base()) as ydl:
@@ -133,7 +147,7 @@ def infos_video():
     except Exception:
         print("ERREUR /api/info :", url, flush=True)
         traceback.print_exc()
-        return jsonify(erreur="Impossible de récupérer cette vidéo. Elle est peut-être privée ou supprimée."), 422
+        return jsonify(erreur=t["err_video"]), 422
 
     return jsonify(
         titre=info.get("title") or info.get("description") or "Vidéo TikTok",
@@ -146,12 +160,13 @@ def infos_video():
 @app.get("/api/download")
 def telecharger():
     """Télécharge la vidéo sur le serveur puis l'envoie à l'utilisateur."""
+    t = textes(request.args.get("lang", "fr"))
     if trop_de_requetes(ip_client()):
-        return "Trop de demandes. Réessayez dans une minute.", 429
+        return t["err_trop"], 429
 
     url = request.args.get("url", "").strip()
     if not lien_valide(url):
-        return "Lien invalide.", 400
+        return t["err_lien"], 400
 
     dossier = tempfile.mkdtemp(prefix="viyasave_")
 
@@ -171,7 +186,7 @@ def telecharger():
     except Exception:
         print("ERREUR /api/download :", url, flush=True)
         traceback.print_exc()
-        return "Échec du téléchargement. Réessayez plus tard.", 422
+        return t["err_echec"], 422
 
     if not os.path.exists(chemin):
         return "Fichier introuvable.", 500
@@ -223,7 +238,7 @@ def robots():
 @app.route("/sitemap.xml")
 def sitemap():
     base = request.url_root.rstrip("/")
-    urls = [(f"{base}/", None), (f"{base}/blog", None)]
+    urls = [(f"{base}/", None), (f"{base}/en", None), (f"{base}/blog", None)]
     for a in db.lister(publies_seulement=True):
         urls.append((f"{base}/blog/{a['slug']}", (a.get("updated_at") or "")[:10]))
     lignes = ['<?xml version="1.0" encoding="UTF-8"?>',

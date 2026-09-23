@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ t.lang }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ViyaSave – Télécharger des vidéos TikTok sans filigrane</title>
-  <meta name="description" content="Téléchargez gratuitement vos vidéos TikTok en MP4, sans filigrane, en haute qualité.">
-  <link rel="canonical" href="{{ request.url_root }}">
+  <title>{{ t.titre_page }}</title>
+  <meta name="description" content="{{ t.meta_description }}">
+  {% set base = request.url_root.rstrip('/') %}
+  <link rel="canonical" href="{{ base }}{{ '/en' if t.lang == 'en' else '/' }}">
+  <link rel="alternate" hreflang="fr" href="{{ base }}/">
+  <link rel="alternate" hreflang="en" href="{{ base }}/en">
+  <link rel="alternate" hreflang="x-default" href="{{ base }}/">
   <style>
     :root {
       --bg: #0f0f14; --carte: #1a1a22; --texte: #f2f2f5; --doux: #9a9aa8;
@@ -17,7 +21,7 @@
            display: flex; flex-direction: column; }
     header { padding: 20px 16px; text-align: center; position: relative; }
     .nav-haut { position: absolute; right: 16px; top: 22px; }
-    .nav-haut a { color: var(--doux); text-decoration: none; font-weight: 600; }
+    .nav-haut a { color: var(--doux); text-decoration: none; font-weight: 600; margin-left: 14px; }
     .guides { margin-top: 40px; }
     .guides h2 { font-size: 1.2rem; margin-bottom: 12px; }
     .guides a.g { display: block; background: var(--carte); border: 1px solid var(--bord); border-radius: 12px;
@@ -75,16 +79,16 @@
 </head>
 <body>
   <header><div class="logo">Viya<span>Save</span></div>
-    <nav class="nav-haut"><a href="/blog">Blog</a></nav></header>
+    <nav class="nav-haut"><a href="/blog">{{ t.blog }}</a><a href="{{ t.url_autre_langue }}" hreflang="{{ 'fr' if t.lang == 'en' else 'en' }}">{{ t.autre_langue }}</a></nav></header>
 
   <main>
-    <h1>Téléchargez vos vidéos TikTok sans filigrane</h1>
-    <p class="sous-titre">Gratuit, rapide, en MP4 haute qualité. Aucune inscription.</p>
+    <h1>{{ t.h1 }}</h1>
+    <p class="sous-titre">{{ t.sous_titre }}</p>
 
     <form id="formulaire">
-      <input id="lien" type="url" placeholder="Collez le lien de la vidéo TikTok ici" required autocomplete="off">
-      <button type="button" class="coller" id="btn-coller">Coller</button>
-      <button type="submit" id="btn-chercher">Télécharger</button>
+      <input id="lien" type="url" placeholder="{{ t.placeholder }}" required autocomplete="off">
+      <button type="button" class="coller" id="btn-coller">{{ t.coller }}</button>
+      <button type="submit" id="btn-chercher">{{ t.telecharger }}</button>
     </form>
 
     {% if ad_top %}<div class="pub">{{ ad_top|safe }}</div>{% endif %}
@@ -92,41 +96,41 @@
     <p class="message" id="message"></p>
 
     <div class="resultat" id="resultat">
-      <img id="miniature" alt="Miniature de la vidéo">
+      <img id="miniature" alt="{{ t.miniature_alt }}">
       <div class="infos">
         <div class="titre" id="titre"></div>
         <div class="auteur" id="auteur"></div>
-        <a class="btn-dl" id="btn-dl" href="#">Télécharger le MP4</a>
+        <a class="btn-dl" id="btn-dl" href="#">{{ t.telecharger_mp4 }}</a>
       </div>
     </div>
 
     {% if ad_bottom %}<div class="pub">{{ ad_bottom|safe }}</div>{% endif %}
 
     <section class="etapes">
-      <div class="etape"><b>1.</b> Ouvrez TikTok et appuyez sur « Partager » puis « Copier le lien ».</div>
-      <div class="etape"><b>2.</b> Collez le lien dans le champ ci-dessus.</div>
-      <div class="etape"><b>3.</b> Appuyez sur « Télécharger » et enregistrez la vidéo.</div>
+      <div class="etape"><b>1.</b> {{ t.etape1 }}</div>
+      <div class="etape"><b>2.</b> {{ t.etape2 }}</div>
+      <div class="etape"><b>3.</b> {{ t.etape3 }}</div>
     </section>
 
     {% if derniers_articles %}
     <section class="guides">
-      <h2>Guides et astuces</h2>
+      <h2>{{ t.guides }}</h2>
       {% for a in derniers_articles %}
         <a class="g" href="/blog/{{ a.slug }}">{{ a.title }}<small>{{ a.description }}</small></a>
       {% endfor %}
-      <a href="/blog" style="color: var(--accent)">Voir tous les articles →</a>
+      <a href="/blog" style="color: var(--accent)">{{ t.tous_articles }}</a>
     </section>
     {% endif %}
 
     <p class="avertissement">
-      Téléchargez uniquement vos propres vidéos ou celles dont vous avez l'autorisation.
-      Respectez les droits des créateurs. ViyaSave n'est pas affilié à TikTok ni à ByteDance.
+      {{ t.avertissement }}
     </p>
   </main>
 
-  <footer>© ViyaSave · <a href="/blog">Blog</a> · <a href="/conditions">Conditions d'utilisation</a></footer>
+  <footer>© ViyaSave · <a href="/blog">{{ t.blog }}</a> · <a href="{{ t.url_conditions }}">{{ t.conditions }}</a> · <a href="{{ t.url_autre_langue }}">{{ t.autre_langue }}</a></footer>
 
   <script>
+    const T = {{ {"recherche": t.js_recherche, "preparation": t.js_preparation, "coller": t.js_coller_manuel, "erreur": t.js_erreur, "lang": t.lang}|tojson }};
     const form = document.getElementById("formulaire");
     const lien = document.getElementById("lien");
     const msg = document.getElementById("message");
@@ -135,7 +139,7 @@
 
     document.getElementById("btn-coller").addEventListener("click", async () => {
       try { lien.value = await navigator.clipboard.readText(); }
-      catch { msg.textContent = "Collez le lien manuellement (appui long dans le champ)."; }
+      catch { msg.textContent = T.coller; }
     });
 
     form.addEventListener("submit", async (e) => {
@@ -143,24 +147,24 @@
       const url = lien.value.trim();
       res.style.display = "none";
       msg.className = "message";
-      msg.textContent = "Recherche de la vidéo…";
+      msg.textContent = T.recherche;
       btn.disabled = true;
 
       try {
         const r = await fetch("/api/info", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url })
+          body: JSON.stringify({ url, lang: T.lang })
         });
         const data = await r.json();
-        if (!r.ok) throw new Error(data.erreur || "Erreur inconnue.");
+        if (!r.ok) throw new Error(data.erreur || T.erreur);
 
         document.getElementById("titre").textContent = data.titre;
         document.getElementById("auteur").textContent = data.auteur ? "@" + data.auteur : "";
         const img = document.getElementById("miniature");
         if (data.miniature) { img.src = data.miniature; img.style.display = ""; }
         else { img.style.display = "none"; }
-        document.getElementById("btn-dl").href = "/api/download?url=" + encodeURIComponent(url);
+        document.getElementById("btn-dl").href = "/api/download?lang=" + T.lang + "&url=" + encodeURIComponent(url);
         res.style.display = "flex";
         if (window.gtag) gtag("event", "video_trouvee");
         msg.textContent = "";
@@ -175,7 +179,7 @@
     document.getElementById("btn-dl").addEventListener("click", () => {
       if (window.gtag) gtag("event", "telechargement");
       msg.className = "message";
-      msg.textContent = "Préparation du fichier… le téléchargement va démarrer.";
+      msg.textContent = T.preparation;
       setTimeout(() => { msg.textContent = ""; }, 8000);
     });
   </script>
