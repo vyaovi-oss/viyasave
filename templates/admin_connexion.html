@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% set no_ga = true %}
+{% block titre %}Connexion admin | ViyaSave{% endblock %}
+{% block meta %}<meta name="robots" content="noindex">{% endblock %}
+{% block contenu %}
+  <div class="carte" style="max-width:420px;margin:40px auto">
+    <h1 style="font-size:1.5rem">Espace admin</h1>
+    {% if erreur %}<div class="alerte err">{{ erreur }}</div>{% endif %}
+    <form method="post">
+      <label for="mdp">Mot de passe</label>
+      <input id="mdp" type="password" name="mot_de_passe" required autofocus>
+      <button class="btn" style="margin-top:16px;width:100%">Se connecter</button>
+    </form>
+  </div>
+{% endblock %}

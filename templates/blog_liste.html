@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block titre %}Blog – Astuces TikTok et téléchargement | ViyaSave{% endblock %}
+{% block meta %}
+  <meta name="description" content="Guides et astuces pour télécharger et enregistrer vos vidéos TikTok sans filigrane, sur téléphone et ordinateur.">
+  <link rel="canonical" href="{{ request.url_root.rstrip('/') }}/blog">
+{% endblock %}
+{% block contenu %}
+  <h1>Le blog ViyaSave</h1>
+  <p class="doux">Guides, astuces et tutoriels autour de TikTok.</p>
+  <div class="grille">
+    {% for a in articles %}
+      <a class="carte carte-article" href="/blog/{{ a.slug }}">
+        {% if a.image %}<img src="{{ a.image }}" alt="{{ a.title }}" loading="lazy">{% endif %}
+        <div>
+          <h2>{{ a.title }}</h2>
+          <p class="doux">{{ a.description }}</p>
+          <small class="doux">{{ a.created_at|date_fr }}</small>
+        </div>
+      </a>
+    {% else %}
+      <p class="doux">Aucun article pour le moment. Revenez bientôt !</p>
+    {% endfor %}
+  </div>
+{% endblock %}

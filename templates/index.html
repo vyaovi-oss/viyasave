@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ViyaSave – Télécharger des vidéos TikTok sans filigrane</title>
   <meta name="description" content="Téléchargez gratuitement vos vidéos TikTok en MP4, sans filigrane, en haute qualité.">
+  <link rel="canonical" href="{{ request.url_root }}">
   <style>
     :root {
       --bg: #0f0f14; --carte: #1a1a22; --texte: #f2f2f5; --doux: #9a9aa8;
@@ -14,7 +15,14 @@
     body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
            background: var(--bg); color: var(--texte); min-height: 100vh;
            display: flex; flex-direction: column; }
-    header { padding: 20px 16px; text-align: center; }
+    header { padding: 20px 16px; text-align: center; position: relative; }
+    .nav-haut { position: absolute; right: 16px; top: 22px; }
+    .nav-haut a { color: var(--doux); text-decoration: none; font-weight: 600; }
+    .guides { margin-top: 40px; }
+    .guides h2 { font-size: 1.2rem; margin-bottom: 12px; }
+    .guides a.g { display: block; background: var(--carte); border: 1px solid var(--bord); border-radius: 12px;
+                  padding: 14px 16px; margin-bottom: 10px; color: var(--texte); text-decoration: none; }
+    .guides a.g small { display: block; color: var(--doux); margin-top: 4px; }
     .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
     .logo span { color: var(--accent); }
     main { flex: 1; width: 100%; max-width: 640px; margin: 0 auto; padding: 24px 16px; }
@@ -66,7 +74,8 @@
   {{ ad_head|safe }}
 </head>
 <body>
-  <header><div class="logo">Viya<span>Save</span></div></header>
+  <header><div class="logo">Viya<span>Save</span></div>
+    <nav class="nav-haut"><a href="/blog">Blog</a></nav></header>
 
   <main>
     <h1>Téléchargez vos vidéos TikTok sans filigrane</h1>
@@ -99,13 +108,23 @@
       <div class="etape"><b>3.</b> Appuyez sur « Télécharger » et enregistrez la vidéo.</div>
     </section>
 
+    {% if derniers_articles %}
+    <section class="guides">
+      <h2>Guides et astuces</h2>
+      {% for a in derniers_articles %}
+        <a class="g" href="/blog/{{ a.slug }}">{{ a.title }}<small>{{ a.description }}</small></a>
+      {% endfor %}
+      <a href="/blog" style="color: var(--accent)">Voir tous les articles →</a>
+    </section>
+    {% endif %}
+
     <p class="avertissement">
       Téléchargez uniquement vos propres vidéos ou celles dont vous avez l'autorisation.
       Respectez les droits des créateurs. ViyaSave n'est pas affilié à TikTok ni à ByteDance.
     </p>
   </main>
 
-  <footer>© ViyaSave · <a href="/conditions">Conditions d'utilisation</a></footer>
+  <footer>© ViyaSave · <a href="/blog">Blog</a> · <a href="/conditions">Conditions d'utilisation</a></footer>
 
   <script>
     const form = document.getElementById("formulaire");

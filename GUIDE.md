@@ -46,6 +46,16 @@ Site gratuit pour télécharger des vidéos TikTok en MP4 sans filigrane.
 - Remplacez `votre-email@exemple.com` dans `templates/conditions.html` par votre vraie adresse de contact.
 - Pour changer le nom du site, remplacez « ViyaSave » dans les fichiers HTML.
 
+## Blog et panel admin
+
+- Adresse du panel : **https://viyasave.xyz/admin**
+- Variables à ajouter dans Render → Environment :
+  - `ADMIN_PASSWORD` : votre mot de passe admin (long et secret)
+  - `SECRET_KEY` : cliquez sur **Generate** dans Render
+  - `DATABASE_URL` : lien de connexion de votre base gratuite **Neon** (neon.tech), qui garde vos articles
+- Sans `DATABASE_URL`, les articles seraient effacés à chaque redémarrage de Render.
+- Le site génère automatiquement `/sitemap.xml` et `/robots.txt` pour Google.
+
 ## Points importants à savoir
 
 - **Droits d'auteur** : les vidéos appartiennent à leurs créateurs. Le site affiche un avertissement demandant de ne télécharger que ses propres vidéos ou avec autorisation, et les conditions d'utilisation prévoient une adresse de contact pour les demandes de retrait. Gardez-les.

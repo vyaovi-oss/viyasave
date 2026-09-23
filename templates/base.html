@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block titre %}ViyaSave{% endblock %}</title>
+  {% block meta %}{% endblock %}
+  <style>
+    :root {
+      --bg: #0f0f14; --carte: #1a1a22; --texte: #f2f2f5; --doux: #9a9aa8;
+      --accent: #25f4ee; --accent2: #fe2c55; --bord: #2a2a35; --vert: #3ddc84;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+           background: var(--bg); color: var(--texte); min-height: 100vh;
+           display: flex; flex-direction: column; line-height: 1.6; }
+    a { color: var(--accent); }
+    header.haut { padding: 16px; display: flex; justify-content: space-between; align-items: center;
+                  max-width: 820px; width: 100%; margin: 0 auto; gap: 12px; flex-wrap: wrap; }
+    .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; color: var(--texte); text-decoration: none; }
+    .logo span { color: var(--accent); }
+    nav a { color: var(--doux); text-decoration: none; margin-left: 16px; font-weight: 600; }
+    nav a:hover { color: var(--texte); }
+    main { flex: 1; width: 100%; max-width: 820px; margin: 0 auto; padding: 16px 16px 40px; }
+    h1 { font-size: clamp(1.6rem, 5vw, 2.3rem); line-height: 1.2; margin: 12px 0 8px; }
+    .doux { color: var(--doux); }
+    .carte { background: var(--carte); border: 1px solid var(--bord); border-radius: 14px; padding: 18px; }
+    .grille { display: grid; gap: 14px; margin-top: 20px; }
+    .carte-article { display: flex; gap: 16px; text-decoration: none; color: var(--texte); }
+    .carte-article img { width: 120px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+    .carte-article h2 { font-size: 1.15rem; line-height: 1.3; margin-bottom: 4px; }
+    .contenu { font-size: 1.05rem; }
+    .contenu h2 { margin: 28px 0 10px; font-size: 1.45rem; }
+    .contenu h3 { margin: 22px 0 8px; font-size: 1.2rem; }
+    .contenu p, .contenu ul, .contenu ol { margin: 12px 0; }
+    .contenu ul, .contenu ol { padding-left: 24px; }
+    .contenu img { max-width: 100%; border-radius: 10px; }
+    .contenu blockquote { border-left: 3px solid var(--accent); padding-left: 14px; color: var(--doux); }
+    .contenu code { background: var(--bord); padding: 2px 6px; border-radius: 4px; }
+    .contenu table { border-collapse: collapse; width: 100%; }
+    .contenu th, .contenu td { border: 1px solid var(--bord); padding: 8px; text-align: left; }
+    .image-une { width: 100%; max-height: 380px; object-fit: cover; border-radius: 14px; margin: 16px 0; }
+    .cta { display: inline-block; margin-top: 24px; background: linear-gradient(135deg, var(--accent), #7ff9f5);
+           color: #000; padding: 12px 20px; border-radius: 10px; font-weight: 700; text-decoration: none; }
+    .btn { display: inline-block; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700;
+           font-size: .95rem; cursor: pointer; text-decoration: none; color: #000;
+           background: linear-gradient(135deg, var(--accent), #7ff9f5); }
+    .btn.gris { background: var(--bord); color: var(--texte); }
+    .btn.rouge { background: var(--accent2); color: #fff; }
+    input[type=text], input[type=password], input[type=url], textarea {
+      width: 100%; background: var(--bg); color: var(--texte); border: 1px solid var(--bord);
+      border-radius: 10px; padding: 12px; font-size: 1rem; font-family: inherit; }
+    textarea { min-height: 380px; font-family: ui-monospace, Menlo, monospace; font-size: .95rem; line-height: 1.5; }
+    label { display: block; font-weight: 600; margin: 16px 0 6px; }
+    .aide { font-size: .85rem; color: var(--doux); margin-top: 4px; }
+    .alerte { padding: 12px 14px; border-radius: 10px; margin: 12px 0; }
+    .alerte.ok { background: rgba(61,220,132,.12); border: 1px solid var(--vert); }
+    .alerte.err { background: rgba(254,44,85,.12); border: 1px solid var(--accent2); }
+    .badge { font-size: .75rem; padding: 2px 8px; border-radius: 99px; font-weight: 700; }
+    .badge.pub { background: rgba(61,220,132,.15); color: var(--vert); }
+    .badge.brouillon { background: var(--bord); color: var(--doux); }
+    footer { text-align: center; padding: 20px 16px; color: var(--doux); font-size: .8rem; }
+    footer a { color: var(--doux); }
+    @media (max-width: 520px) {
+      .carte-article { flex-direction: column; }
+      .carte-article img { width: 100%; height: 160px; }
+      nav a { margin-left: 10px; }
+    }
+  </style>
+  {% if ga_id and not no_ga %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_id }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ ga_id }}');
+  </script>
+  {% endif %}
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header class="haut">
+    <a class="logo" href="/">Viya<span>Save</span></a>
+    <nav>
+      <a href="/">Télécharger</a>
+      <a href="/blog">Blog</a>
+      {% if session.get('admin') %}<a href="/admin">Admin</a>{% endif %}
+    </nav>
+  </header>
+  <main>{% block contenu %}{% endblock %}</main>
+  <footer>© ViyaSave · <a href="/blog">Blog</a> · <a href="/conditions">Conditions d'utilisation</a></footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

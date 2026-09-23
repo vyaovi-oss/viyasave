@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% set url_page = request.url_root.rstrip('/') ~ '/blog/' ~ art.slug %}
+{% block titre %}{{ art.title }} | ViyaSave{% endblock %}
+{% block meta %}
+  <meta name="description" content="{{ art.description }}">
+  <link rel="canonical" href="{{ url_page }}">
+  {% if not art.published %}<meta name="robots" content="noindex">{% endif %}
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="{{ art.title }}">
+  <meta property="og:description" content="{{ art.description }}">
+  <meta property="og:url" content="{{ url_page }}">
+  {% if art.image %}<meta property="og:image" content="{{ art.image }}">{% endif %}
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+  {{ {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": art.title,
+    "description": art.description,
+    "image": art.image or none,
+    "datePublished": art.created_at,
+    "dateModified": art.updated_at,
+    "mainEntityOfPage": url_page,
+    "publisher": {"@type": "Organization", "name": "ViyaSave"}
+  }|tojson }}
+  </script>
+{% endblock %}
+{% block contenu %}
+  {% if not art.published %}<div class="alerte err">Brouillon : visible uniquement par vous.</div>{% endif %}
+  <article>
+    <p class="doux"><a href="/blog">← Blog</a> · {{ art.created_at|date_fr }}</p>
+    <h1>{{ art.title }}</h1>
+    {% if art.description %}<p class="doux">{{ art.description }}</p>{% endif %}
+    {% if art.image %}<img class="image-une" src="{{ art.image }}" alt="{{ art.title }}">{% endif %}
+    <div class="contenu">{{ art.content|markdown }}</div>
+    <a class="cta" href="/">📥 Télécharger une vidéo TikTok sans filigrane</a>
+  </article>
+
+  {% if autres %}
+    <h2 style="margin-top:40px">À lire aussi</h2>
+    <div class="grille">
+      {% for a in autres %}
+        <a class="carte carte-article" href="/blog/{{ a.slug }}">
+          <div><h2>{{ a.title }}</h2><p class="doux">{{ a.description }}</p></div>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}

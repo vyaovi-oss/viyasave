@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% set no_ga = true %}
+{% block titre %}{{ 'Modifier' if art else 'Nouvel' }} article | Admin ViyaSave{% endblock %}
+{% block meta %}<meta name="robots" content="noindex">{% endblock %}
+{% block contenu %}
+  <p><a href="/admin">← Mes articles</a></p>
+  <h1>{{ 'Modifier l’article' if art else 'Nouvel article' }}</h1>
+  {% if erreur %}<div class="alerte err">{{ erreur }}</div>{% endif %}
+
+  <form method="post" id="form-article">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+
+    <label for="titre">Titre</label>
+    <input id="titre" type="text" name="titre" value="{{ f.titre or '' }}" required maxlength="120">
+    <div class="aide">Idéal : 50 à 65 caractères, avec le mot-clé principal. Ex : « Comment télécharger une vidéo TikTok sans filigrane sur iPhone »</div>
+
+    <label for="description">Description (pour Google)</label>
+    <input id="description" type="text" name="description" value="{{ f.description or '' }}" maxlength="300">
+    <div class="aide"><span id="nb-desc">0</span> caractères — idéal : 120 à 160. C’est le texte affiché sous le titre dans Google.</div>
+
+    <label for="slug">Adresse de l’article (facultatif)</label>
+    <input id="slug" type="text" name="slug" value="{{ f.slug or '' }}" placeholder="telecharger-tiktok-sans-filigrane-iphone">
+    <div class="aide">Laissez vide : elle sera créée à partir du titre.</div>
+
+    <label for="image">Image principale (lien, facultatif)</label>
+    <input id="image" type="url" name="image" value="{{ f.image or '' }}" placeholder="https://…">
+    <div class="aide">Collez le lien d’une image hébergée (ex : imgur.com, postimages.org).</div>
+
+    <label for="contenu">Contenu</label>
+    <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+      <button type="button" class="btn gris" data-ins="## ">Titre H2</button>
+      <button type="button" class="btn gris" data-ins="### ">Sous-titre H3</button>
+      <button type="button" class="btn gris" data-wrap="**">Gras</button>
+      <button type="button" class="btn gris" data-ins="- ">Liste</button>
+      <button type="button" class="btn gris" data-lien="1">Lien</button>
+      <button type="button" class="btn gris" data-img="1">Image</button>
+      <button type="button" class="btn" id="btn-apercu">Aperçu</button>
+    </div>
+    <textarea id="contenu" name="contenu">{{ f.contenu or '' }}</textarea>
+    <div class="aide">
+      Mise en forme simple : <code>## Titre</code> · <code>**gras**</code> · <code>- élément de liste</code> ·
+      <code>[texte](https://lien)</code> · <code>![description](https://image.jpg)</code> · ligne vide = nouveau paragraphe.
+    </div>
+
+    <div id="apercu" class="carte contenu" style="display:none;margin-top:16px"></div>
+
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+      <input type="checkbox" name="publie" value="1" {% if f.publie %}checked{% endif %} style="width:20px;height:20px">
+      Publier (sinon, l’article reste en brouillon, invisible pour les visiteurs)
+    </label>
+
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn" type="submit">💾 Enregistrer</button>
+      <a class="btn gris" href="/admin">Annuler</a>
+    </div>
+  </form>
+{% endblock %}
+{% block scripts %}
+<script>
+  const zone = document.getElementById("contenu");
+  const desc = document.getElementById("description");
+  const nb = document.getElementById("nb-desc");
+  const majNb = () => nb.textContent = desc.value.length;
+  desc.addEventListener("input", majNb); majNb();
+
+  function inserer(avant, apres = "") {
+    const d = zone.selectionStart, f = zone.selectionEnd;
+    const sel = zone.value.slice(d, f);
+    zone.setRangeText(avant + sel + apres, d, f, "end");
+    zone.focus();
+  }
+  document.querySelectorAll("[data-ins]").forEach(b => b.onclick = () => {
+    const d = zone.selectionStart;
+    const debutLigne = zone.value.lastIndexOf("\n", d - 1) + 1;
+    zone.setRangeText(b.dataset.ins, debutLigne, debutLigne, "end"); zone.focus();
+  });
+  document.querySelectorAll("[data-wrap]").forEach(b => b.onclick = () => inserer(b.dataset.wrap, b.dataset.wrap));
+  document.querySelector("[data-lien]").onclick = () => {
+    const url = prompt("Adresse du lien :", "https://"); if (url) inserer("[", "](" + url + ")");
+  };
+  document.querySelector("[data-img]").onclick = () => {
+    const url = prompt("Lien de l'image :", "https://"); if (url) inserer("![description](" + url + ")");
+  };
+
+  document.getElementById("btn-apercu").onclick = async () => {
+    const boite = document.getElementById("apercu");
+    const donnees = new FormData();
+    donnees.append("contenu", zone.value);
+    donnees.append("csrf", document.querySelector("[name=csrf]").value);
+    const r = await fetch("/admin/apercu", { method: "POST", body: donnees });
+    boite.innerHTML = r.ok ? await r.text() : "<p>Erreur d'aperçu.</p>";
+    boite.style.display = "block";
+    boite.scrollIntoView({ behavior: "smooth" });
+  };
+</script>
+{% endblock %}
