@@ -1,12 +1,15 @@
 {% extends "base.html" %}
-{% block titre %}Blog – Astuces TikTok et téléchargement | ViyaSave{% endblock %}
+{% set en = (page_lang == "en") %}
+{% block titre %}{{ 'Blog – TikTok tips & guides | ViyaSave' if en else 'Blog – Astuces TikTok et téléchargement | ViyaSave' }}{% endblock %}
 {% block meta %}
-  <meta name="description" content="Guides et astuces pour télécharger et enregistrer vos vidéos TikTok sans filigrane, sur téléphone et ordinateur.">
-  <link rel="canonical" href="{{ request.url_root.rstrip('/') }}/blog">
+  <meta name="description" content="{{ 'Guides and tips to download and save TikTok videos without watermark, on phone and computer.' if en else 'Guides et astuces pour télécharger et enregistrer vos vidéos TikTok sans filigrane, sur téléphone et ordinateur.' }}">
+  <link rel="canonical" href="{{ request.url_root.rstrip('/') }}{{ '/en/blog' if en else '/blog' }}">
+  <link rel="alternate" hreflang="fr" href="{{ request.url_root.rstrip('/') }}/blog">
+  <link rel="alternate" hreflang="en" href="{{ request.url_root.rstrip('/') }}/en/blog">
 {% endblock %}
 {% block contenu %}
-  <h1>Le blog ViyaSave</h1>
-  <p class="doux">Guides, astuces et tutoriels autour de TikTok.</p>
+  <h1>{{ 'The ViyaSave blog' if en else 'Le blog ViyaSave' }}</h1>
+  <p class="doux">{{ 'Guides, tips and tutorials about TikTok.' if en else 'Guides, astuces et tutoriels autour de TikTok.' }}</p>
   <div class="grille">
     {% for a in articles %}
       <a class="carte carte-article" href="/blog/{{ a.slug }}">
@@ -14,11 +17,11 @@
         <div>
           <h2>{{ a.title }}</h2>
           <p class="doux">{{ a.description }}</p>
-          <small class="doux">{{ a.created_at|date_fr }}</small>
+          <small class="doux">{{ a.created_at[:10] if en else a.created_at|date_fr }}</small>
         </div>
       </a>
     {% else %}
-      <p class="doux">Aucun article pour le moment. Revenez bientôt !</p>
+      <p class="doux">{{ 'No articles yet. Come back soon!' if en else 'Aucun article pour le moment. Revenez bientôt !' }}</p>
     {% endfor %}
   </div>
 {% endblock %}

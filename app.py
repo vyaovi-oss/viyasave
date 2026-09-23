@@ -107,7 +107,7 @@ def options_base() -> dict:
 @app.route("/")
 def accueil():
     try:
-        articles = db.lister(publies_seulement=True, limite=3)
+        articles = db.lister(publies_seulement=True, limite=3, lang="fr")
     except Exception:
         articles = []
     return render_template("index.html", derniers_articles=articles, t=textes("fr"))
@@ -115,8 +115,11 @@ def accueil():
 
 @app.route("/en")
 def accueil_en():
-    # Les articles du blog sont en français : on ne les affiche pas sur la version anglaise
-    return render_template("index.html", derniers_articles=[], t=textes("en"))
+    try:
+        articles = db.lister(publies_seulement=True, limite=3, lang="en")
+    except Exception:
+        articles = []
+    return render_template("index.html", derniers_articles=articles, t=textes("en"))
 
 
 @app.route("/en/terms")
@@ -216,7 +219,12 @@ def filtre_date(iso):
 
 @app.route("/blog")
 def blog():
-    return render_template("blog_liste.html", articles=db.lister(publies_seulement=True))
+    return render_template("blog_liste.html", articles=db.lister(publies_seulement=True, lang="fr"), page_lang="fr")
+
+
+@app.route("/en/blog")
+def blog_en():
+    return render_template("blog_liste.html", articles=db.lister(publies_seulement=True, lang="en"), page_lang="en")
 
 
 @app.route("/blog/<slug>")
@@ -224,8 +232,8 @@ def article(slug):
     art = db.par_slug(slug)
     if not art or (not art["published"] and not session.get("admin")):
         abort(404)
-    autres = [a for a in db.lister(publies_seulement=True, limite=4) if a["slug"] != slug][:3]
-    return render_template("blog_article.html", art=art, autres=autres)
+    autres = [a for a in db.lister(publies_seulement=True, limite=4, lang=art["lang"]) if a["slug"] != slug][:3]
+    return render_template("blog_article.html", art=art, autres=autres, page_lang=art["lang"])
 
 
 @app.route("/robots.txt")
@@ -238,7 +246,7 @@ def robots():
 @app.route("/sitemap.xml")
 def sitemap():
     base = request.url_root.rstrip("/")
-    urls = [(f"{base}/", None), (f"{base}/en", None), (f"{base}/blog", None)]
+    urls = [(f"{base}/", None), (f"{base}/en", None), (f"{base}/blog", None), (f"{base}/en/blog", None)]
     for a in db.lister(publies_seulement=True):
         urls.append((f"{base}/blog/{a['slug']}", (a.get("updated_at") or "")[:10]))
     lignes = ['<?xml version="1.0" encoding="UTF-8"?>',
@@ -311,6 +319,7 @@ def _form_article():
         image=request.form.get("image", "").strip(),
         publie=request.form.get("publie") == "1",
         slug=request.form.get("slug", "").strip(),
+        lang="en" if request.form.get("lang") == "en" else "fr",
     )
 
 
@@ -341,7 +350,7 @@ def admin_modifier(article_id):
         db.modifier(article_id, **f)
         return redirect(url_for("admin_accueil", message="Article mis à jour ✅"))
     f = dict(titre=art["title"], description=art["description"], contenu=art["content"],
-             image=art["image"], publie=bool(art["published"]), slug=art["slug"])
+             image=art["image"], publie=bool(art["published"]), slug=art["slug"], lang=art["lang"])
     return render_template("admin_edition.html", art=art, f=f, erreur="")
 
 

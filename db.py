@@ -62,6 +62,11 @@ def init():
             updated_at TEXT
         )
     """)
+    # Ajout de la colonne "lang" (fr / en) si elle n'existe pas encore
+    try:
+        _run("ALTER TABLE articles ADD COLUMN lang TEXT DEFAULT 'fr'")
+    except Exception:
+        pass
 
 
 def _now():
@@ -84,41 +89,56 @@ def _slug_unique(base, ignore_id=None):
         n += 1
 
 
-def lister(publies_seulement=True, limite=None):
+def lister(publies_seulement=True, limite=None, lang=None):
     sql = "SELECT * FROM articles"
+    conditions, params = [], []
     if publies_seulement:
-        sql += " WHERE published = 1"
+        conditions.append("published = 1")
+    if lang:
+        conditions.append("COALESCE(lang, 'fr') = ?")
+        params.append(lang)
+    if conditions:
+        sql += " WHERE " + " AND ".join(conditions)
     sql += " ORDER BY created_at DESC"
     if limite:
         sql += f" LIMIT {int(limite)}"
-    return _run(sql, fetch="all")
+    lignes = _run(sql, tuple(params), fetch="all")
+    for l in lignes:
+        l["lang"] = l.get("lang") or "fr"
+    return lignes
+
+
+def _avec_lang(row):
+    if row:
+        row["lang"] = row.get("lang") or "fr"
+    return row
 
 
 def par_slug(slug):
-    return _run("SELECT * FROM articles WHERE slug = ?", (slug,), fetch="one")
+    return _avec_lang(_run("SELECT * FROM articles WHERE slug = ?", (slug,), fetch="one"))
 
 
 def par_id(article_id):
-    return _run("SELECT * FROM articles WHERE id = ?", (article_id,), fetch="one")
+    return _avec_lang(_run("SELECT * FROM articles WHERE id = ?", (article_id,), fetch="one"))
 
 
-def creer(titre, description, contenu, image, publie, slug=""):
+def creer(titre, description, contenu, image, publie, slug="", lang="fr"):
     slug = _slug_unique(slugify(slug or titre))
     now = _now()
     _run(
-        "INSERT INTO articles (slug, title, description, content, image, published, created_at, updated_at) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        (slug, titre, description, contenu, image, 1 if publie else 0, now, now),
+        "INSERT INTO articles (slug, title, description, content, image, published, created_at, updated_at, lang) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (slug, titre, description, contenu, image, 1 if publie else 0, now, now, lang),
     )
     return slug
 
 
-def modifier(article_id, titre, description, contenu, image, publie, slug=""):
+def modifier(article_id, titre, description, contenu, image, publie, slug="", lang="fr"):
     slug = _slug_unique(slugify(slug or titre), ignore_id=article_id)
     _run(
         "UPDATE articles SET slug = ?, title = ?, description = ?, content = ?, image = ?, "
-        "published = ?, updated_at = ? WHERE id = ?",
-        (slug, titre, description, contenu, image, 1 if publie else 0, _now(), article_id),
+        "published = ?, updated_at = ?, lang = ? WHERE id = ?",
+        (slug, titre, description, contenu, image, 1 if publie else 0, _now(), lang, article_id),
     )
     return slug
 

@@ -79,7 +79,7 @@
 </head>
 <body>
   <header><div class="logo">Viya<span>Save</span></div>
-    <nav class="nav-haut"><a href="/blog">{{ t.blog }}</a><a href="{{ t.url_autre_langue }}" hreflang="{{ 'fr' if t.lang == 'en' else 'en' }}">{{ t.autre_langue }}</a></nav></header>
+    <nav class="nav-haut"><a href="{{ '/en/blog' if t.lang == 'en' else '/blog' }}">{{ t.blog }}</a><a href="{{ t.url_autre_langue }}" hreflang="{{ 'fr' if t.lang == 'en' else 'en' }}">{{ t.autre_langue }}</a></nav></header>
 
   <main>
     <h1>{{ t.h1 }}</h1>
@@ -118,7 +118,7 @@
       {% for a in derniers_articles %}
         <a class="g" href="/blog/{{ a.slug }}">{{ a.title }}<small>{{ a.description }}</small></a>
       {% endfor %}
-      <a href="/blog" style="color: var(--accent)">{{ t.tous_articles }}</a>
+      <a href="{{ '/en/blog' if t.lang == 'en' else '/blog' }}" style="color: var(--accent)">{{ t.tous_articles }}</a>
     </section>
     {% endif %}
 
@@ -127,7 +127,7 @@
     </p>
   </main>
 
-  <footer>© ViyaSave · <a href="/blog">{{ t.blog }}</a> · <a href="{{ t.url_conditions }}">{{ t.conditions }}</a> · <a href="{{ t.url_autre_langue }}">{{ t.autre_langue }}</a></footer>
+  <footer>© ViyaSave · <a href="{{ '/en/blog' if t.lang == 'en' else '/blog' }}">{{ t.blog }}</a> · <a href="{{ t.url_conditions }}">{{ t.conditions }}</a> · <a href="{{ t.url_autre_langue }}">{{ t.autre_langue }}</a></footer>
 
   <script>
     const T = {{ {"recherche": t.js_recherche, "preparation": t.js_preparation, "coller": t.js_coller_manuel, "erreur": t.js_erreur, "lang": t.lang}|tojson }};

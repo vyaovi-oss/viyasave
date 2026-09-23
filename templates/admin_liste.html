@@ -15,7 +15,7 @@
     {% for a in articles %}
       <div class="carte" style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
         <div style="min-width:0">
-          <strong>{{ a.title }}</strong>
+          <strong>{{ '🇬🇧' if a.lang == 'en' else '🇫🇷' }} {{ a.title }}</strong>
           {% if a.published %}<span class="badge pub">Publié</span>{% else %}<span class="badge brouillon">Brouillon</span>{% endif %}
           <div class="aide">/blog/{{ a.slug }} · modifié le {{ a.updated_at|date_fr }}</div>
         </div>

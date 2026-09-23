@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="fr">
+{% set en = (page_lang == "en") %}
+<html lang="{{ 'en' if en else 'fr' }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -80,15 +81,15 @@
 </head>
 <body>
   <header class="haut">
-    <a class="logo" href="/">Viya<span>Save</span></a>
+    <a class="logo" href="{{ '/en' if en else '/' }}">Viya<span>Save</span></a>
     <nav>
-      <a href="/">Télécharger</a>
-      <a href="/blog">Blog</a>
+      <a href="{{ '/en' if en else '/' }}">{{ 'Download' if en else 'Télécharger' }}</a>
+      <a href="{{ '/en/blog' if en else '/blog' }}">Blog</a>
       {% if session.get('admin') %}<a href="/admin">Admin</a>{% endif %}
     </nav>
   </header>
   <main>{% block contenu %}{% endblock %}</main>
-  <footer>© ViyaSave · <a href="/blog">Blog</a> · <a href="/conditions">Conditions d'utilisation</a></footer>
+  <footer>© ViyaSave · <a href="{{ '/en/blog' if en else '/blog' }}">Blog</a> · <a href="{{ '/en/terms' if en else '/conditions' }}">{{ 'Terms of use' if en else "Conditions d'utilisation" }}</a></footer>
   {% block scripts %}{% endblock %}
 </body>
 </html>

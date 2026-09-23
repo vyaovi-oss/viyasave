@@ -10,6 +10,12 @@
   <form method="post" id="form-article">
     <input type="hidden" name="csrf" value="{{ csrf }}">
 
+    <label for="lang">Langue de l'article</label>
+    <select id="lang" name="lang" style="width:100%;background:var(--bg);color:var(--texte);border:1px solid var(--bord);border-radius:10px;padding:12px;font-size:1rem">
+      <option value="fr" {% if (f.lang or 'fr') == 'fr' %}selected{% endif %}>🇫🇷 Français (visible sur /blog)</option>
+      <option value="en" {% if f.lang == 'en' %}selected{% endif %}>🇬🇧 English (visible sur /en/blog)</option>
+    </select>
+
     <label for="titre">Titre</label>
     <input id="titre" type="text" name="titre" value="{{ f.titre or '' }}" required maxlength="120">
     <div class="aide">Idéal : 50 à 65 caractères, avec le mot-clé principal. Ex : « Comment télécharger une vidéo TikTok sans filigrane sur iPhone »</div>
